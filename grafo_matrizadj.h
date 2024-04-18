@@ -8,6 +8,7 @@ typedef int Apontador;
 
 #define MAX_NUM_VERTICES 100
 #define AN -1
+#define VERTICE_INVALIDO -1
 
 typedef struct {
 	Peso mat[MAX_NUM_VERTICES][MAX_NUM_VERTICES];
