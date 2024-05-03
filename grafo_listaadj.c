@@ -177,6 +177,8 @@ bool removeArestaObtendoPeso(int v1, int v2, Peso *peso, Grafo *grafo)
 	free(p2);
 
 	grafo->numArestas--;
+
+	return true;
 }
 
 bool removeAresta(int v1, int v2, Grafo *grafo)
@@ -237,14 +239,17 @@ bool listaAdjVazia(int v, Grafo *grafo)
 }
 
 Apontador primeiroListaAdj(int v, Grafo *grafo)
+
 {
 	if (!(verificaValidadeVertice(v, grafo)))
 		return VERTICE_INVALIDO;
 	Aresta *p = grafo->listaAdj[v];
-	if (p)
+	if (p) {
 		return p;
-	else
+	}
+	else {
 		return AN;
+	}
 }
 
 Apontador proxListaAdj(int v, Grafo *grafo, Apontador atual)
@@ -254,7 +259,7 @@ Apontador proxListaAdj(int v, Grafo *grafo, Apontador atual)
 
 	if (!atual)
 	{
-		fprintf(stderr, "ERRO: atual == NULL em proxListaAdj");
+		//fprintf(stderr, "ERRO: atual == NULL em proxListaAdj");
 		return AN;
 	}
 
@@ -263,8 +268,10 @@ Apontador proxListaAdj(int v, Grafo *grafo, Apontador atual)
 
 int obtemVerticeDestino(Apontador p, Grafo *grafo)
 {
-	if (!p)
+	if (!p) {
 		return AN;
+	}
+	printf("%d", p->vdest);
 	return p->vdest;
 }
 

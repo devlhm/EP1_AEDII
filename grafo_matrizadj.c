@@ -20,7 +20,7 @@ bool inicializaGrafo(Grafo *grafo, int nv)
 	grafo->numArestas = 0;
 	for (i = 0; i < grafo->numVertices; i++)
 	{
-		for (j = 0; j < grafo->numArestas; j++)
+		for (j = 0; j < grafo->numVertices; j++)
 		{
 			grafo->mat[i][j] = AN;
 		}
@@ -50,7 +50,7 @@ bool verificaValidadeVertice(int v, Grafo *grafo)
 
 	if (v < 0)
 	{
-		fprintf(stderr, "ERRO: numero do vertice < 0");
+		//fprintf(stderr, "ERRO: numero do vertice < 0");
 		return false;
 	}
 
@@ -134,22 +134,20 @@ Apontador primeiroListaAdj(int v, Grafo *grafo)
 
 Apontador proxListaAdj(int v, Grafo *grafo, Apontador atual)
 {
-	int atual = (int) atual;
+	int a = (int) atual;
 	if (!verificaValidadeVertice(v, grafo))
 		return VERTICE_INVALIDO;
 
-	Peso lista[] = grafo->mat[v];
-	atual++;
+	Peso* lista = grafo->mat[v];
+	a++;
 
-	while (lista[atual] != AN && atual < grafo->numVertices)
-	{
-		atual++;
-	}
+	while (a < grafo->numVertices && lista[a] == AN)
+		a++;
 
-	if (atual >= grafo->numVertices)
+	if (a >= grafo->numVertices)
 		return VERTICE_INVALIDO;
 
-	return atual;
+	return a;
 }
 
 int obtemVerticeDestino(Apontador p, Grafo *grafo)
@@ -158,6 +156,8 @@ int obtemVerticeDestino(Apontador p, Grafo *grafo)
 	{
 		return VERTICE_INVALIDO;
 	}
+
+	return p;
 }
 
 void imprimeGrafo(Grafo *grafo)
