@@ -44,7 +44,7 @@ bool verificaValidadeVertice(int v, Grafo *grafo)
 
 	if (v < 0)
 	{
-		fprintf(stderr, "ERRO: numero do vertice < 0");
+		//fprintf(stderr, "ERRO: numero do vertice < 0");
 		return false;
 	}
 
@@ -271,7 +271,6 @@ int obtemVerticeDestino(Apontador p, Grafo *grafo)
 	if (!p) {
 		return AN;
 	}
-	printf("%d", p->vdest);
 	return p->vdest;
 }
 

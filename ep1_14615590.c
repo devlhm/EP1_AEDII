@@ -102,7 +102,7 @@ NO *removePilha(PILHA *pilha)
 	return no;
 }
 
-void imprimeCaminho(Grafo *grafo, int *antecessor)
+void imprimeCaminho(Grafo *grafo, int *antecessor, FILE* fp_saida)
 {
 	PILHA *pilha = inicializaPilha();
 	for (int v = 0; v < obtemNrVertices(grafo); v++)
@@ -118,30 +118,29 @@ void imprimeCaminho(Grafo *grafo, int *antecessor)
 		NO *no = removePilha(pilha);
 		while (no != NULL)
 		{
-			printf("%d ", no->ch);
+			fprintf(fp_saida, "%d ", no->ch);
 
 			no = removePilha(pilha);
 		}
 
-		printf("%d ", v);
-		puts("");
+		fprintf(fp_saida, "%d\n", v);
 	}
 }
 
-void imprimeComponentesConectados(Grafo *grafo, bool **componentes_conectados, int qtd)
+void imprimeComponentesConectados(Grafo *grafo, bool **componentes_conectados, int qtd, FILE* fp_saida)
 {
-	puts("Componentes conectados:");
+	fprintf(fp_saida, "Componentes conectados:\n");
 	for (int i = 0; i < qtd; i++)
 	{
-		printf("C%d: ", i + 1);
+		fprintf(fp_saida, "C%d: ", i + 1);
 		for (int j = 0; j < obtemNrVertices(grafo); j++)
 		{
 			if (componentes_conectados[i][j])
 			{
-				printf("%d ", j);
+				fprintf(fp_saida, "%d ", j);
 			}
 		}
-		puts("");
+		fprintf(fp_saida, "\n");
 	}
 }
 
@@ -150,7 +149,7 @@ void visitaBP(int v, Grafo *grafo, int *tempo, Cor *cor, int *tdesc, int *tterm,
 	componentes_conectados[v] = true;
 	cor[v] = CINZA;
 	tdesc[v] = ++(*tempo);
-	if(prt) printf("%d ", v);
+	if(prt) fprintf(fp_saida, "%d ", v);
 
 	Apontador aresta = primeiroListaAdj(v, grafo);
 
@@ -174,9 +173,9 @@ void visitaBP(int v, Grafo *grafo, int *tempo, Cor *cor, int *tdesc, int *tterm,
 	}
 }
 
-int* buscaProfundidade(Grafo *grafo, bool prt, FILE *arq_saida)
+int* buscaProfundidade(Grafo *grafo, bool prt, FILE *fp_saida)
 {
-	if(prt) puts("BP:");
+	if(prt) fprintf(fp_saida, "BP:\n");
 	int *tdesc = (int *)malloc(obtemNrVertices(grafo) * sizeof(int));
 	int *tterm = (int *)malloc(obtemNrVertices(grafo) * sizeof(int));
 	int *antecessor = (int *)malloc(obtemNrVertices(grafo) * sizeof(int));
@@ -198,42 +197,40 @@ int* buscaProfundidade(Grafo *grafo, bool prt, FILE *arq_saida)
 		if (cor[v] == BRANCO)
 		{
 			componentes_conectados[i] = calloc(obtemNrVertices(grafo), sizeof(int));
-			visitaBP(v, grafo, &tempo, cor, tdesc, tterm, antecessor, prt, arq_saida, componentes_conectados[i]);
+			visitaBP(v, grafo, &tempo, cor, tdesc, tterm, antecessor, prt, fp_saida, componentes_conectados[i]);
 			i++;
 		}
 
 	if(prt) {
-		puts("");
-		puts("");
+		fprintf(fp_saida, "\n");
+		fprintf(fp_saida, "\n");
 
-		puts("Caminhos BP:");
-		imprimeCaminho(grafo, antecessor);
-		puts("");
+		fprintf(fp_saida, "Caminhos BP:\n");
+		imprimeCaminho(grafo, antecessor, fp_saida);
+		fprintf(fp_saida, "\n");
 
-
-		imprimeComponentesConectados(grafo, componentes_conectados, i);
-		puts("");
+		imprimeComponentesConectados(grafo, componentes_conectados, i, fp_saida);
+		fprintf(fp_saida, "\n");
 	}
 
 	return i;
 }
 
-void imprimeVerticesArticulacao(Grafo *grafo, int qtd_componentes)
+void imprimeVerticesArticulacao(Grafo *grafo, int qtd_componentes, FILE* fp_saida)
 {
-	puts("Vertices de articulacao:");
+	fprintf(fp_saida, "Vertices de articulacao:\n");
 
 	//VERIFICANDO SE I É VERTICE DE ARTICULACAO
 	for(int i = 0; i < obtemNrVertices(grafo); i++) {
+		
 		Grafo* grafo_r = (Grafo*) malloc(sizeof(Grafo));
 		inicializaGrafo(grafo_r, obtemNrVertices(grafo) - 1);
 		
 		for(int u = 0; u < obtemNrVertices(grafo); u++) {
 			if(i == u) continue;
-			int aresta = primeiroListaAdj(u, grafo);
+			Apontador aresta = primeiroListaAdj(u, grafo);
 			while(aresta != AN) {
-				//TA CRASHANDO AQUI
 				int v = obtemVerticeDestino(aresta, grafo);
-				
 
 				int u2 = u;
 				int v2 = v;
@@ -249,7 +246,7 @@ void imprimeVerticesArticulacao(Grafo *grafo, int qtd_componentes)
 		}
 
 		int novo_qtd = buscaProfundidade(grafo_r, false, NULL);
-		if (novo_qtd > qtd_componentes) printf("%d ", i);
+		if (novo_qtd > qtd_componentes) fprintf(fp_saida, "%d ", i);
 		liberaGrafo(grafo_r);
 	}
 }
@@ -283,8 +280,8 @@ Grafo *ler_grafo(char *arq_entrada)
 	return grafo;
 }
 
-void visitaBL(int v, Grafo* grafo, Cor* cor, int* antecessor, int* distancia) {
-	printf("%d ", v);
+void visitaBL(int v, Grafo* grafo, Cor* cor, int* antecessor, int* distancia, FILE* fp_saida) {
+	fprintf(fp_saida, "%d ", v);
 	cor[v] = CINZA;
 	distancia[v] = 0;
 	FILA* fila = inicializaFila();
@@ -297,7 +294,7 @@ void visitaBL(int v, Grafo* grafo, Cor* cor, int* antecessor, int* distancia) {
 
 		while(u != VERTICE_INVALIDO) {
 			if(cor[u] == BRANCO) {
-				printf("%d ", u);
+				fprintf(fp_saida, "%d ", u);
 				cor[u] = CINZA;
 				antecessor[u] = w;
 				distancia[u] = distancia[w] + 1;
@@ -314,7 +311,7 @@ void visitaBL(int v, Grafo* grafo, Cor* cor, int* antecessor, int* distancia) {
 }
 
 void buscaLargura(Grafo* grafo, FILE* fp_saida) {
-	puts("BL:");
+	fprintf(fp_saida, "BL:\n");
 	int *antecessor = (int *)malloc(obtemNrVertices(grafo) * sizeof(int));
 	int *distancia = (int *)malloc(obtemNrVertices(grafo) * sizeof(int));
 	Cor *cor = (Cor *)malloc(obtemNrVertices(grafo) * sizeof(Cor));
@@ -329,13 +326,11 @@ void buscaLargura(Grafo* grafo, FILE* fp_saida) {
 
 	for (int v = 0; v < obtemNrVertices(grafo); v++)
 		if (cor[v] == BRANCO)
-			visitaBL(v, grafo, cor, antecessor, distancia);
+			visitaBL(v, grafo, cor, antecessor, distancia, fp_saida);
 
-	puts("");
-	puts("");
-
-	puts("Caminhos BL:");
-	imprimeCaminho(grafo, antecessor);
+	fprintf(fp_saida, "\n\n");
+	fprintf(fp_saida, "Caminhos BL:\n");
+	imprimeCaminho(grafo, antecessor, fp_saida);
 }
 
 int main(int argc, char const *argv[])
@@ -349,16 +344,13 @@ int main(int argc, char const *argv[])
 	char *arq_entrada = argv[1];
 	char *arq_saida = argv[2];
 
-	FILE *fp_saida = fopen(arq_saida, "w");
-	
-	
-
 	Grafo *grafo = ler_grafo(arq_entrada);
+	FILE *fp_saida = fopen(arq_saida, "w");
 
 
 	buscaLargura(grafo, fp_saida);
-	puts("");
+	fprintf(fp_saida, "\n");
 	
 	int* qtd_componentes = buscaProfundidade(grafo, true, fp_saida);
-	imprimeVerticesArticulacao(grafo, qtd_componentes);
+	imprimeVerticesArticulacao(grafo, qtd_componentes, fp_saida);
 }
